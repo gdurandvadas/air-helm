@@ -1,0 +1,17 @@
+releases:
+- name: api
+  namespace: backend
+  chart: ../../../charts/air-helm/
+  values:
+    - airServer:
+        code:
+          directory: "/Users/{username}/project" # (MacOS Example) Root directory of the project on your local filesystem.
+          modulePath: "example/api"
+          buildSource: "./cmd/server"
+    - service:
+        type: LoadBalancer # Expose the service to the host in Docker Desktop
+        http:
+          enabled: true
+          port: 8080
+    - image:
+        tag: commit

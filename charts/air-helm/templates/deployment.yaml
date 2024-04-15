@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "air-helm.fullname" . }}
+  labels:
+    {{- include "air-helm.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "air-helm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "air-helm.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "air-helm.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if or .Values.service.http.enabled .Values.service.grpc.enabled }}
+          ports:
+            {{- if .Values.service.http.enabled }}
+            - name: http
+              containerPort: {{ .Values.service.http.port }}
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.service.grpc.enabled }}
+            - name: grpc
+              containerPort: {{ .Values.service.grpc.port }}
+              protocol: TCP
+            {{- end }}
+          {{- end }}
+          {{- if .Values.probes.enabled }}
+          livenessProbe: {{ toYaml .Values.probes.liveness | nindent 12 }}
+          readinessProbe: {{ toYaml .Values.probes.readiness | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: source-code
+              mountPath: /app/source
+            - name: air-config
+              mountPath: /etc/air
+              readOnly: true
+            - name: sandbox-tmp
+              mountPath: /app/tmp
+      volumes:
+        - name: source-code
+          hostPath:
+            path: {{ .Values.airServer.code.directory }}
+            type: Directory
+        - name: sandbox-tmp
+          emptyDir: {}
+        - name: air-config
+          configMap:
+            name: {{ include "air-helm.fullname" . }}-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

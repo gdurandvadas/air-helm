@@ -1,0 +1,15 @@
+apiVersion: v2
+name: air-helm
+description: Air Helm enhances Go development in Kubernetes by leveraging Air for live reloading and Helm for deployment.
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+keywords:
+  - go
+  - golang
+  - development
+  - kubernetes
+  - helm
+  - live-reloading
+sources:
+  - https://github.com/gdurandvadas/air-helm
