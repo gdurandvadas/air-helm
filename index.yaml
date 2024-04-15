@@ -1,0 +1,24 @@
+apiVersion: v1
+entries:
+  air-helm:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-04-15T15:07:27.858263289Z"
+    description: Air Helm enhances Go development in Kubernetes by leveraging Air
+      for live reloading and Helm for deployment.
+    digest: d3759fe572931ac9d97fbeacaf056c06fa91f794e13b0b58daaf9d47096f8c44
+    keywords:
+    - go
+    - golang
+    - development
+    - kubernetes
+    - helm
+    - live-reloading
+    name: air-helm
+    sources:
+    - https://github.com/gdurandvadas/air-helm
+    type: application
+    urls:
+    - https://github.com/gdurandvadas/air-helm/releases/download/air-helm-0.1.0/air-helm-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-04-15T15:07:27.858269881Z"
